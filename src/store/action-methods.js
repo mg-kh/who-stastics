@@ -1,0 +1,1 @@
+export const GET_STATISTIC_DATA = "GET_STATISTIC_DATA";
