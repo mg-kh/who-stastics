@@ -5,6 +5,7 @@ import store from "./store";
 import vuetify from "./plugins/vuetify";
 import ApiServices from "@/api/index";
 import HighchartsVue from "highcharts-vue";
+import "@/styles/variables.scss";
 
 Vue.config.productionTip = false;
 ApiServices.init();

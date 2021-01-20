@@ -1,0 +1,11 @@
+@import '~vuetify/src/styles/styles.sass';
+@import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
+$body-font-family: 'Yusei Magic', sans-serif;;
+.v-application ,
+.v-application .text-subtitle-1 ,
+.v-application .text-caption {
+     font-family: 'Rubik', sans-serif !important;
+}
+.v-btn{
+     text-transform: capitalize;
+}

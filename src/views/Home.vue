@@ -22,9 +22,16 @@
               </span>
             </v-card-title>
             <v-card-text>
-              <v-avatar size="150" color="white" rounded>
-                <lottie-animation path="./home-lottie.json"></lottie-animation>
-              </v-avatar>
+              <router-link
+                :to="{ name: 'Dashboard' }"
+                class="text-decoration-none"
+              >
+                <v-avatar size="150" color="white" rounded>
+                  <lottie-animation
+                    path="./home-lottie.json"
+                  ></lottie-animation>
+                </v-avatar>
+              </router-link>
             </v-card-text>
             <v-card-actions class="justify-center">
               <v-btn

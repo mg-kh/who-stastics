@@ -51,7 +51,10 @@ export default {
       chartOptions: {
         chart: {
           type: "column",
-          height: 500
+          height: 500,
+          style: {
+            fontFamily: '"Rubik",sans-serif'
+          }
         },
         title: {
           text: this.title
