@@ -15,6 +15,11 @@ const routes = [
     name: "Dashboard",
     component: () =>
       import(/* webpackChunkName: "dashboard" */ "@/views/Dashboard")
+  },
+  {
+    path: "*",
+    name: "404",
+    component: () => import(/* webpackChunkName: "dashboard" */ "@/views/404")
   }
 ];
 
