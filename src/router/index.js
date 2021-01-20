@@ -25,7 +25,10 @@ const routes = [
   {
     path: "*",
     name: "404",
-    component: () => import(/* webpackChunkName: "dashboard" */ "@/views/404")
+    component: () => import(/* webpackChunkName: "dashboard" */ "@/views/404"),
+    meta: {
+      title: "Page Not Found"
+    }
   }
 ];
 
