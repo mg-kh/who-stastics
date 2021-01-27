@@ -1,9 +1,14 @@
 <template>
-  <highcharts :options="chartOptions" />
+  <highcharts
+    :constructorType="'mapChart'"
+    class="hc"
+    :options="chartOptions"
+    ref="chart"
+  />
 </template>
 
 <script>
-import Highcharts from "highcharts";
+import AsiaMap from "@highcharts/map-collection/custom/asia.geo.json";
 export default {
   props: {
     country: {
@@ -27,31 +32,13 @@ export default {
       }
     }
   },
-  computed: {
-    theme() {
-      return this.$vuetify.theme.dark;
-    }
-  },
-  watch: {
-    statistics(val) {
-      this.chartOptions = {
-        series: val
-      };
-    },
-    theme(val) {
-      if (val) {
-        this.fixChartTheme("dark");
-      } else {
-        this.fixChartTheme("light");
-      }
-    }
-  },
   data() {
     return {
       chartOptions: {
         chart: {
-          type: "column",
-          height: 500,
+          map: AsiaMap,
+          height: 550,
+          backgroundColor: "#4b96af",
           style: {
             fontFamily: '"Rubik",sans-serif'
           }
@@ -59,54 +46,52 @@ export default {
         title: {
           text: this.title
         },
-        xAxis: {
-          categories: [""],
-          crosshair: true
+        subtitle: {
+          text: this.indicator
         },
-        yAxis: {
-          min: 0,
-          title: {
-            text: this.indicator
+        mapNavigation: {
+          enabled: true,
+          buttonOptions: {
+            alignTo: "spacingBox"
           }
         },
         tooltip: {
-          headerFormat: "<b>{point.x}</b><br/>",
-          pointFormat: "{series.name}: ({point.y}) %"
-        },
-        legend: {
-          align: "center",
-          x: 0,
-          verticalAlign: "bottom",
-          y: 0,
-          floating: false,
-          backgroundColor:
-            Highcharts.defaultOptions.legend.backgroundColor || "white",
-          borderColor: "#CCC",
-          borderWidth: 0,
-          borderRadius: 3,
-          shadow: false
-        },
-        plotOptions: {
-          column: {
-            dataLabels: {
-              enabled: true
-            },
-            borderRadius: 0,
-            maxPointWidth: 30
-          },
-          series: {
-            maxPointWidth: 35,
-            dataLabels: {
-              enabled: true,
-              format: "{y} %",
-              style: {
-                textOutline: "none",
-                fontWeight: "bold"
-              }
-            }
+          formatter: function() {
+            return `
+            <b>${this.point.name}</b> 
+            <br/>
+            Male : ${this.point.male} %, 
+            <br/>
+            Female : ${this.point.female} %,
+            <br/>
+            Total : ${this.point.value} %,
+            `;
           }
         },
-        series: this.statistics
+        colorAxis: {
+          min: 0,
+          minColor: "#F1F3FF",
+          maxColor: "#2196F3"
+        },
+        series: [
+          {
+            dataLabels: {
+              enabled: true,
+              format: "{point.name}"
+            },
+            allAreas: false,
+            colorKey: "value",
+            data: this.statistics,
+            joinBy: ["iso-a2", "code"]
+          }
+        ],
+        plotOptions: {
+          series: {
+            states: {
+              hover: {}
+            }
+          }
+        }
       }
     };
   },
@@ -115,6 +100,27 @@ export default {
       this.fixChartTheme("light");
     } else {
       this.fixChartTheme("dark");
+    }
+  },
+  computed: {
+    theme() {
+      return this.$vuetify.theme.dark;
+    }
+  },
+  watch: {
+    statistics(val) {
+      this.chartOptions = {
+        series: {
+          data: val
+        }
+      };
+    },
+    theme(val) {
+      if (val) {
+        this.fixChartTheme("dark");
+      } else {
+        this.fixChartTheme("light");
+      }
     }
   },
   methods: {
@@ -135,6 +141,11 @@ export default {
             }
           },
           xAxis: {
+            title: {
+              style: {
+                color: "#1DE9B6"
+              }
+            },
             labels: {
               style: {
                 color: "#1DE9B6"
@@ -151,11 +162,9 @@ export default {
               style: {
                 color: "#fff"
               }
-            }
-          },
-          plotOptions: {
-            series: {
-              dataLabels: {
+            },
+            stackLabels: {
+              style: {
                 color: "#1DE9B6"
               }
             }
@@ -181,6 +190,11 @@ export default {
               style: {
                 color: "#333"
               }
+            },
+            title: {
+              style: {
+                color: "#333"
+              }
             }
           },
           yAxis: {
@@ -193,11 +207,9 @@ export default {
               style: {
                 color: "#333"
               }
-            }
-          },
-          plotOptions: {
-            series: {
-              dataLabels: {
+            },
+            stackLabels: {
+              style: {
                 color: "#333"
               }
             }
@@ -208,3 +220,10 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.highcharts-name-myanmar {
+  // stroke-width: 2;
+  fill: rgb(221, 134, 75);
+}
+</style>

@@ -1,10 +1,9 @@
 <template>
-  <highcharts :options="chartOptions" />
+  <highcharts id="chart" :options="chartOptions" />
 </template>
 
 <script>
 import Highcharts from "highcharts";
-
 export default {
   props: {
     country: {
@@ -64,6 +63,17 @@ export default {
           categories: this.country,
           title: {
             text: "Countries (South East Asia)"
+          },
+          labels: {
+            formatter: function() {
+              if (this.value === "Myanmar") {
+                return `
+                <b style="fill: #e91e63; font-weight : bold; font-size : 13px">💓 ${this.value} </b>
+              `;
+              } else {
+                return this.value;
+              }
+            }
           }
         },
         yAxis: {
@@ -97,16 +107,16 @@ export default {
           headerFormat: "<b>{point.x}</b><br/>",
           pointFormat: "{series.name}: ({point.y}) %"
         },
+        colors: ["#70C4FF", "#F04DFF"],
         plotOptions: {
           column: {
-            stacking: "normal",
-            borderRadius: 0,
+            borderRadius: 3,
             dataLabels: {
               enabled: true
             }
           },
           series: {
-            maxPointWidth: 35
+            maxPointWidth: 15
           }
         },
         series: this.statistics

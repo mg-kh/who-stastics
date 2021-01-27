@@ -1,10 +1,7 @@
 import { Statistic } from "@/api/index.js";
 import { GET_STATISTIC_DATA } from "@/store/action-methods";
-import {
-  SET_STATISTIC,
-  FILTER_COUNTRIES,
-  CHOOSE_COUNTRY
-} from "@/store/mutation-methods";
+import { SET_STATISTIC, CHOOSE_YEAR } from "@/store/mutation-methods";
+import changeCountryCode from "@/plugins/changeCountryCode";
 import _ from "lodash";
 
 const statistic = {
@@ -27,42 +24,15 @@ const statistic = {
     period: [],
     indicatorText: "",
     title: "",
-    chooseCountryData: []
+    chooseCountryData: [],
+    mapCountryData: []
   },
   getters: {
     getFilterCountriesChartData(state) {
-      const southEastAsiaCountries = state.filterCountries;
-
-      const period = state.period;
-
-      const selected = _.reduce(
-        period,
-        (a, b) => {
-          // ? Filter Same Period Countries
-          const filterByYear = _.filter(southEastAsiaCountries, country => {
-            return country.Period === b;
-          });
-
-          // ? Zipping Same Period Tooltip Data
-          const zipData = _.reduce(
-            filterByYear,
-            (a, b) => {
-              a.name = b.Period;
-              a.data = [];
-              _.forEach(filterByYear, item =>
-                a.data.push(item["First Tooltip"])
-              );
-              return a;
-            },
-            {}
-          );
-
-          a.push(zipData);
-          return a;
-        },
-        []
-      );
-      return selected;
+      return state.chooseCountryData;
+    },
+    getMapCountryData(state) {
+      return state.mapCountryData;
     }
   },
   mutations: {
@@ -70,17 +40,11 @@ const statistic = {
       const { data, title } = statistics;
       state.statistic = data;
       state.title = title;
+      state.indicatorText = data[0]["Indicator"];
 
-      // ? Filter South East Asia Countries With Default Gender
-      const filter = _.filter(
-        state.statistic,
-        o =>
-          _.includes(state.southEastAsia, o.Location) && o.Dim1 === "Both sexes"
-      );
-
-      // ? Get Periods From SouthEastAsia Countries
+      // ? [2015 , 2000 , 2010] Period
       const period = _.reduce(
-        filter,
+        state.statistic,
         (a, b) => {
           if (!_.includes(a, b.Period)) {
             a.push(b.Period);
@@ -90,78 +54,102 @@ const statistic = {
         []
       );
 
-      // ? filter Selected country with default
-      const filterByCountry = _.filter(filter, country => {
-        return country.Location === "Myanmar";
-      });
-
-      // ? Zip Same Selected Country Data
-      const countryData = _.reduce(
-        filterByCountry,
-        (a, b) => {
-          a.unshift({
-            name: b.Period,
-            data: [b["First Tooltip"]]
-          });
-          return a;
-        },
-        []
-      );
-
-      state.filterCountries = filter;
-      state.period = period;
-      state.chooseCountryData = countryData;
-      state.indicatorText = state.filterCountries[0].Indicator;
-    },
-    [FILTER_COUNTRIES](state, sex = "Both Sexes") {
-      // ? Filter South East Asia Countries With Selected Gender
+      // ? Filter South East Asia Countries With Default Period
       const filter = _.filter(
         state.statistic,
-        o => _.includes(state.southEastAsia, o.Location) && o.Dim1 === sex
+        o =>
+          _.includes(state.southEastAsia, o.Location) &&
+          o.Period === period[period.length - 1]
       );
 
-      // ? Filter country data with default selected country
-      const filterByCountry = _.filter(filter, country => {
-        return country.Location === "Myanmar";
-      });
-
-      // ? Zip country data with selected gender
-      const countryData = _.reduce(
-        filterByCountry,
+      // ? Make Map Data
+      const changeIsoCode = changeCountryCode.install();
+      const mapCountryData = _.reduce(
+        state.southEastAsia,
         (a, b) => {
-          a.unshift({
-            name: b.Period,
-            data: [b["First Tooltip"]]
+          const groupingSameCountries = _.filter(filter, country => {
+            return country.Location === b;
           });
+          if (groupingSameCountries.length > 0) {
+            a.push({
+              code: changeIsoCode(b).toUpperCase(),
+              value: groupingSameCountries[0]["First Tooltip"],
+              male: groupingSameCountries[1]["First Tooltip"],
+              female: groupingSameCountries[2]["First Tooltip"]
+            });
+          }
           return a;
         },
         []
       );
+
+      const male = _.filter(filter, data => data.Dim1 === "Male");
+      const female = _.filter(filter, data => data.Dim1 === "Female");
+
+      const countryData = [
+        {
+          name: "Male",
+          data: male.map(data => data["First Tooltip"])
+        },
+        {
+          name: "Female",
+          data: female.map(data => data["First Tooltip"])
+        }
+      ];
 
       state.chooseCountryData = countryData;
       state.filterCountries = filter;
+      state.period = period;
+      state.mapCountryData = mapCountryData;
     },
-    [CHOOSE_COUNTRY](state, chooseCountry) {
-      // ? filter country with selected country
-      const filterByCountry = _.filter(state.filterCountries, country => {
-        return country.Location === chooseCountry;
-      });
 
-      // ? Zip country data with selected country
-      const countryData = _.reduce(
-        filterByCountry,
+    [CHOOSE_YEAR](state, period) {
+      // ? Filter South East Asia Countries With selected Period
+      const filter = _.filter(
+        state.statistic,
+        o => _.includes(state.southEastAsia, o.Location) && o.Period === period
+      );
+
+      // ? Make Map Data
+      const changeIsoCode = changeCountryCode.install();
+      const mapCountryData = _.reduce(
+        state.southEastAsia,
         (a, b) => {
-          a.unshift({
-            name: b.Period,
-            data: [b["First Tooltip"]]
+          const groupingSameCountries = _.filter(filter, country => {
+            return country.Location === b;
           });
+          if (groupingSameCountries.length > 0) {
+            a.push({
+              code: changeIsoCode(b).toUpperCase(),
+              value: groupingSameCountries[0]["First Tooltip"],
+              male: groupingSameCountries[1]["First Tooltip"],
+              female: groupingSameCountries[2]["First Tooltip"]
+            });
+          }
           return a;
         },
         []
       );
+
+      const male = _.filter(filter, data => data.Dim1 === "Male");
+      const female = _.filter(filter, data => data.Dim1 === "Female");
+
+      const countryData = [
+        {
+          name: "Male",
+          data: male.map(data => data["First Tooltip"])
+        },
+        {
+          name: "Female",
+          data: female.map(data => data["First Tooltip"])
+        }
+      ];
+
       state.chooseCountryData = countryData;
+      state.mapCountryData = mapCountryData;
     }
   },
+
   actions: {
     [GET_STATISTIC_DATA]({ commit }, category) {
       return new Promise((resolve, reject) => {
@@ -171,7 +159,7 @@ const statistic = {
             resolve(data);
           })
           .catch(error => {
-            reject(error.response.data.message);
+            reject(error);
           });
       });
     }

@@ -20,43 +20,42 @@
 
             <!-- Radio and Seletc Box -->
             <v-card-title class="pt-1">
-              <v-radio-group
-                dense
-                hide-details
-                v-model="gender"
-                @change="changeGender"
-                row
-              >
-                <v-radio color="radioBtn" value="Both sexes">
-                  <template v-slot:label>
-                    <span class="textColor--text"> Both</span>
-                  </template>
-                </v-radio>
-                <v-radio color="radioBtn" value="Male">
-                  <template v-slot:label>
-                    <span class="textColor--text"> Male</span>
-                  </template>
-                </v-radio>
-                <v-radio color="radioBtn" value="Female">
-                  <template v-slot:label>
-                    <span class="textColor--text"> Female</span>
-                  </template>
-                </v-radio>
-              </v-radio-group>
+              <!-- Category Select -->
+              <article>
+                <label class="text-caption textColor--text"
+                  >Choose Category:</label
+                >
+                <v-select
+                  :items="categoryItems"
+                  item-text="name"
+                  item-value="id"
+                  label="Choose Category"
+                  v-model="category"
+                  @change="getTheStatistics"
+                  dense
+                  solo
+                  hide-details
+                  item-color="teal accent-3"
+                  class="select--box"
+                ></v-select>
+              </article>
+
               <v-spacer></v-spacer>
-              <v-select
-                :items="categoryItems"
-                item-text="name"
-                item-value="id"
-                label="Choose Category"
-                v-model="category"
-                @change="getTheStatistics"
-                dense
-                solo
-                hide-details
-                item-color="teal accent-3"
-                class="select--box"
-              ></v-select>
+              <!-- Year Select -->
+              <article>
+                <label class="text-caption textColor--text">Choose Year:</label>
+                <v-select
+                  dense
+                  hide-details
+                  item-color="teal accent-3"
+                  class="select--box mb-2 ml-auto"
+                  label="Choose Year"
+                  :items="period"
+                  v-model="selectedPeriod"
+                  @change="periodSelected"
+                  solo
+                ></v-select>
+              </article>
             </v-card-title>
 
             <!-- Barchart -->
@@ -94,7 +93,7 @@
                 </template>
 
                 <v-carousel-item>
-                  <!-- Staci Column -->
+                  <!-- Stacked Column -->
                   <stack-column
                     v-if="!isLoading"
                     :country="country"
@@ -103,23 +102,13 @@
                     :title="title"
                   ></stack-column>
                 </v-carousel-item>
+
                 <v-carousel-item>
-                  <v-select
-                    dense
-                    solo
-                    hide-details
-                    item-color="teal accent-3"
-                    class="select--box mb-2 ml-auto"
-                    label="Choose Country"
-                    :items="country"
-                    v-model="chooseCountry"
-                    @change="chooseTheCountry"
-                  ></v-select>
                   <column-chart
                     v-if="!isLoading"
                     :country="country"
                     :indicator="indicator"
-                    :statistics="chooseCountryData"
+                    :statistics="mapCountryData"
                     :title="title"
                   ></column-chart>
                 </v-carousel-item>
@@ -134,7 +123,7 @@
 
 <script>
 import { GET_STATISTIC_DATA } from "@/store/action-methods";
-import { FILTER_COUNTRIES, CHOOSE_COUNTRY } from "@/store/mutation-methods";
+import { CHOOSE_YEAR } from "@/store/mutation-methods";
 import StackColumn from "@/components/StackColumn";
 import ColumnChart from "@/components/ColumnChart";
 import { mapActions } from "vuex";
@@ -142,8 +131,8 @@ import LottieAnimation from "lottie-vuejs/src/LottieAnimation.vue";
 export default {
   data() {
     return {
-      gender: "Both sexes",
-      category: "600255a7e31fbc3bdef4433e",
+      // category: "600255a7e31fbc3bdef4433e",
+      category: "60025639f98f6e35d5fd18a8",
       isLoading: true,
       categoryItems: [
         {
@@ -163,11 +152,12 @@ export default {
           name: "Crude Suicide Rate"
         },
         {
-          id: "6004305b4f42973a289dfc3c",
+          id: "600ff70dbca934583e41e88e",
           name: "HIV Infection Rate"
         }
       ],
-      chooseCountry: "Myanmar"
+      chooseCountry: "Myanmar",
+      selectedPeriod: ""
     };
   },
   components: {
@@ -185,14 +175,25 @@ export default {
     statisticsData() {
       return this.$store.getters.getFilterCountriesChartData;
     },
+    mapCountryData() {
+      return this.$store.getters.getMapCountryData;
+    },
     indicator() {
       return this.$store.state.statistic.indicatorText;
     },
     title() {
       return this.$store.state.statistic.title;
     },
+    period() {
+      return this.$store.state.statistic.period;
+    },
     chooseCountryData() {
       return this.$store.state.statistic.chooseCountryData;
+    }
+  },
+  watch: {
+    period(val) {
+      this.selectedPeriod = val[val.length - 1];
     }
   },
   methods: {
@@ -206,20 +207,14 @@ export default {
         .then(() => {
           this.isLoading = false;
           this.chooseCountry = "Myanmar";
-          this.gender = "Both sexes";
         })
         .catch(message => {
           console.log(message);
         });
     },
 
-    changeGender() {
-      this.$store.commit(`${FILTER_COUNTRIES}`, this.gender);
-      this.chooseTheCountry();
-    },
-
-    chooseTheCountry() {
-      this.$store.commit(`${CHOOSE_COUNTRY}`, this.chooseCountry);
+    periodSelected() {
+      this.$store.commit(CHOOSE_YEAR, this.selectedPeriod);
     }
   }
 };
