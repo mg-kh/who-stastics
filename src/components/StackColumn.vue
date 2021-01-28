@@ -63,17 +63,6 @@ export default {
           categories: this.country,
           title: {
             text: "Countries (South East Asia)"
-          },
-          labels: {
-            formatter: function() {
-              if (this.value === "Myanmar") {
-                return `
-                <b style="fill: #e91e63; font-weight : bold; font-size : 13px">💓 ${this.value} </b>
-              `;
-              } else {
-                return this.value;
-              }
-            }
           }
         },
         yAxis: {
@@ -119,9 +108,8 @@ export default {
             maxPointWidth: 15,
             states: {
               select: {
-                color: null,
-                borderColor: "blue",
-                borderWidth: 3
+                borderWidth: 4,
+                borderRadius: 0
               }
             }
           }
@@ -186,10 +174,15 @@ export default {
               style: {
                 color: "#fff"
               }
-            },
-            stackLabels: {
-              style: {
-                color: "#1DE9B6"
+            }
+          },
+          plotOptions: {
+            series: {
+              states: {
+                select: {
+                  color: null,
+                  borderColor: "white"
+                }
               }
             }
           }
@@ -235,6 +228,16 @@ export default {
             stackLabels: {
               style: {
                 color: "#333"
+              }
+            }
+          },
+          plotOptions: {
+            series: {
+              states: {
+                select: {
+                  color: null,
+                  borderColor: "black"
+                }
               }
             }
           }
