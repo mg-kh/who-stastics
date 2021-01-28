@@ -63,6 +63,17 @@ export default {
           categories: this.country,
           title: {
             text: "Countries (South East Asia)"
+          },
+          labels: {
+            formatter: function() {
+              if (this.value === "Myanmar") {
+                return `
+                <b style="font-weight : bold; font-size : 13px">💓 ${this.value} </b>
+              `;
+              } else {
+                return this.value;
+              }
+            }
           }
         },
         yAxis: {
@@ -108,8 +119,7 @@ export default {
             maxPointWidth: 15,
             states: {
               select: {
-                borderWidth: 4,
-                borderRadius: 0
+                borderWidth: 4
               }
             }
           }
