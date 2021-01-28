@@ -139,35 +139,6 @@ export default {
             style: {
               color: "#1DE9B6"
             }
-          },
-          xAxis: {
-            title: {
-              style: {
-                color: "#1DE9B6"
-              }
-            },
-            labels: {
-              style: {
-                color: "#1DE9B6"
-              }
-            }
-          },
-          yAxis: {
-            title: {
-              style: {
-                color: "#1DE9B6"
-              }
-            },
-            labels: {
-              style: {
-                color: "#fff"
-              }
-            },
-            stackLabels: {
-              style: {
-                color: "#1DE9B6"
-              }
-            }
           }
         };
       } else if (val === "light") {

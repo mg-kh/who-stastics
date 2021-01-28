@@ -116,14 +116,31 @@ export default {
             }
           },
           series: {
-            maxPointWidth: 15
+            maxPointWidth: 15,
+            states: {
+              select: {
+                color: null,
+                borderColor: "blue",
+                borderWidth: 3
+              }
+            }
           }
         },
         series: this.statistics
       }
     };
   },
+  created() {
+    const male = this.chartOptions.series[0].data[5];
+    const female = this.chartOptions.series[1].data[5];
+    this.chartOptions.series[0].data[5] = { y: male, selected: true };
+    this.chartOptions.series[1].data[5] = { y: female, selected: true };
+  },
   mounted() {
+    const male = this.chartOptions.series[0].data[5];
+    const female = this.chartOptions.series[1].data[5];
+    this.chartOptions.series[0].data[5] = { y: male, selected: true };
+    this.chartOptions.series[1].data[5] = { y: female, selected: true };
     if (!this.theme) {
       this.fixChartTheme("light");
     } else {
